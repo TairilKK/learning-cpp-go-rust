@@ -21,7 +21,23 @@ RUST_TARGETS := $(patsubst %/main.rs,%,$(RUST_PROBLEMS))
 GO_TARGETS := $(patsubst %/main.go,%,$(GO_PROBLEMS))
 
 # Domyślny target - kompiluje wszystko
-all: $(CPP_TARGETS) $(RUST_TARGETS) $(GO_TARGETS)
+# all: $(CPP_TARGETS) $(RUST_TARGETS) $(GO_TARGETS)
+
+# Funkcje do znajdowania najnowszych plików
+LAST_CPP := $(lastword $(sort $(CPP_PROBLEMS)))
+LAST_RUST := $(lastword $(sort $(RUST_PROBLEMS)))
+LAST_GO := $(lastword $(sort $(GO_PROBLEMS)))
+
+# Targety tylko dla najnowszych plików
+LAST_CPP_TARGET := $(patsubst %/main.cpp,%,$(LAST_CPP))
+LAST_RUST_TARGET := $(patsubst %/main.rs,%,$(LAST_RUST))
+LAST_GO_TARGET := $(patsubst %/main.go,%,$(LAST_GO))
+
+# Domyślny target - kompiluje tylko ostatnie pliki
+last_all: $(LAST_CPP_TARGET) $(LAST_RUST_TARGET) $(LAST_GO_TARGET)
+last_cpp: $(LAST_CPP_TARGET)
+last_rust: $(LAST_RUST_TARGET)
+last_go: $(LAST_GO_TARGET)
 
 # Reguła dla problemów C++
 $(CPP_TARGETS): %: %/main.cpp
