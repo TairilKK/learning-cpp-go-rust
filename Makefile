@@ -26,10 +26,10 @@ LAST_CPP_TARGET := $(patsubst %/main.cpp,%,$(LAST_CPP))
 LAST_RUST_TARGET := $(patsubst %/main.rs,%,$(LAST_RUST))
 LAST_GO_TARGET := $(patsubst %/main.go,%,$(LAST_GO))
 
-last_all: $(LAST_CPP_TARGET) $(LAST_RUST_TARGET) $(LAST_GO_TARGET)
 last_cpp: $(LAST_CPP_TARGET)
 last_rust: $(LAST_RUST_TARGET)
 last_go: $(LAST_GO_TARGET)
+last_all: $(LAST_CPP_TARGET) $(LAST_RUST_TARGET) $(LAST_GO_TARGET)
 
 $(CPP_TARGETS): %: %/main.cpp
 	@mkdir -p $(BIN_DIR)
