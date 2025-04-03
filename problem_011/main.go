@@ -33,7 +33,152 @@
 
 package main
 
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+
+func read_grid_from_file(file_path string) [][] uint64 {
+	grid, err := os.ReadFile(file_path)
+	if err != nil {
+		panic(err)
+	}
+	lines := strings.Split(strings.TrimSuffix(string(grid), "\n"), "\n")
+	matrix := make([][] uint64, len(lines));
+
+	for idx, line := range lines {
+		numbers := strings.Split(line, " ")
+		for _, num := range numbers {
+			i, _ := strconv.Atoi(num)
+			matrix[idx] = append(matrix[idx], uint64(i))
+		}
+	}
+	return matrix
+}
+
+func calc_horizontal(matrix [][] uint64, rows int, cols int, row int, col int, n_numbers int) uint64 {
+	if col + n_numbers >= cols{
+		return 0;
+	}
+
+	res := uint64(1);
+	for i := 0; i < n_numbers; i++ {
+		res *= matrix[row][col+i];
+	}
+
+	return res;
+}
+
+func calc_vertical(matrix [][]uint64, rows int, cols int, row int, col int, n_numbers int) uint64 {
+	if row + n_numbers >= rows{
+		return 0;
+	}
+
+	res := uint64(1);
+	for i := 0; i < n_numbers; i++ {
+		res *= matrix[row+i][col];
+	}
+
+	return res;
+}
+
+func calc_diagonal_left_to_right(matrix [][]uint64, rows int, cols int, row int, col int, n_numbers int) uint64 {
+	if row + n_numbers >= rows || col + n_numbers >= cols{
+		return 0;
+	}
+
+	res := uint64(1);
+	for i := 0; i < n_numbers; i++ {
+		res *= matrix[row+i][col+i];
+	}
+
+	return res;
+}
+
+func calc_diagonal_right_to_left(matrix [][]uint64, rows int, cols int, row int, col int, n_numbers int) uint64 {
+	if row + n_numbers >= rows || col + 1 - n_numbers < 0 {
+		return 0;
+	}
+	res := uint64(1);
+	for i := 0; i < n_numbers; i++ {
+		res *= matrix[row+i][col-i];
+	}
+
+	return res;
+}
+
 
 func main() {
+	grid := read_grid_from_file("./problem_011/grid.txt");
+	rows := len(grid);
+	cols := len(grid[0]);
 
+	if calc_horizontal(grid, rows, cols, 0, 0, 4) != 34144  {
+		panic("calc_horizontal(grid, rows, cols, 0, 0, 4) != 34144")
+	}
+	if calc_vertical(grid, rows, cols, 0, 0, 4) != 1651104  {
+		panic("calc_vertical(grid, rows, cols, 0, 0, 4) != 1651104")
+	}
+	if calc_diagonal_left_to_right(grid, rows, cols, 0, 0, 4) != 279496  {
+		panic("calc_diagonal_left_to_right(grid, rows, cols, 0, 0, 4) != 279496")
+	}
+	if calc_diagonal_right_to_left(grid, rows, cols, 0, 3, 4) != 24468444  {
+		panic("calc_diagonal_right_to_left(grid, rows, cols, 0, 0, 4) != 24468444")
+	}
+
+	if calc_horizontal(grid, rows, cols, 0, 17, 4) != 0  {
+		panic("calc_horizontal(grid, rows, rows-3, 0, 0, 4) != 0")
+	}
+	if calc_vertical(grid, rows, cols, 17, 0, 4) != 0  {
+		panic("calc_vertical(grid, rows, cols, 0, cols-3, 4) != 0")
+	}
+	if calc_diagonal_left_to_right(grid, rows, cols, rows-3, cols-3, 4) != 0  {
+		panic("calc_diagonal_left_to_right(grid, rows, cols, rows-3, cols-3, 4) != 0")
+	}
+	if calc_diagonal_right_to_left(grid, rows, cols, rows-3, 2, 4) != 0  {
+		panic("calc_diagonal_right_to_left(grid, rows, cols, rows-3, 2, 4) != 0")
+	}
+
+	N_NUMBERS := 4
+	max_result := uint64(0)
+	max_result_row := 0
+	max_result_col := 0
+	max_result_dir := "horizontal"
+	for row := 0; row < rows; row++ {
+		for col:= 0; col < cols; col++ {
+			result := calc_horizontal(grid, rows, cols, row, col, N_NUMBERS)
+			if result > max_result {
+				max_result = result
+				max_result_row = row
+				max_result_col = col
+				max_result_dir = "horizontal"
+			}
+			result = calc_vertical(grid, rows, cols, row, col, N_NUMBERS)
+			if result > max_result {
+				max_result = result
+				max_result_row = row
+				max_result_col = col
+				max_result_dir = "vertical"
+			}
+			result = calc_diagonal_left_to_right(grid, rows, cols, row, col, N_NUMBERS)
+			if result > max_result {
+				max_result = result
+				max_result_row = row
+				max_result_col = col
+				max_result_dir = "left to right diagonal"
+			}
+			result = calc_diagonal_right_to_left(grid, rows, cols, row, col, N_NUMBERS)
+			if result > max_result {
+				max_result = result
+				max_result_row = row
+				max_result_col = col
+				max_result_dir = "right to left diagonal"
+			}
+		}
+	}
+	fmt.Println("The greatest product of four adjacent numbers in the same direction: ", max_result, ".")
+	fmt.Println("Position: (",max_result_col,", ", max_result_row,") in ", max_result_dir, "direction.")
 }
